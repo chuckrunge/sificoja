@@ -19,13 +19,22 @@ Sificoja will compare two text files and display the differences.  The assumptio
 
 Typical uses would be to validate minor changes, such as deployment of a properties file.  Or in the case of software testing, to compare a "before" version with an "after" version to insure that the changes are expected.  
 
-A report file is written to "Output.txt" in the same folder as the application.  Differences are displayed in the GUI and on the command line, but large reports are easier to review in your favorite notepad.  And they can be archived if proof of testing is required.
+RELEASE NOTES - 1.0.1
+The FileCompare object was rewritten using memory arrays.  This allows a flexible way to "read ahead" for a match, bypassing any inserts in file2.  A properties file, sificoja.props, was added to fine-tune compare options.  Options include:
+1) readAheadNbr - read-ahead up to a specific number of lines to find a matching line.  Use the smallest number you can.
+2) sort - sort both files before matching.
+3) pctForMatch - percent of matching characters that will count a line as a match. If minor changes don't matter, this will screen them out. 
+4) maxSize will automatically size the arrays for performance.  
+A future enhancement will be to provide an update facility in the GUI. 
+
+A report file is written to "Compare.txt" in the same folder as the application.  Differences are displayed in the GUI and on the command line, but large reports are easier to review in your favorite notepad.  And they can be archived if proof of testing is required.
 
 In the GUI, pressing the File1 button will display a File Open dialog for selecting the base file.  The File2 button does the same for the delta file.  Pressing Compare will execute the function.
+
 To run the GUI, the following command should be executed:
-java -cp sificoja-1.0.0-RELEASE.jar com/cgr/javaGUI/MainWindow
+java -cp sificoja-1.0.1-RELEASE.jar com/cgr/javaGUI/MainWindow
 
 At the command line, specify file1 and file2 as parameters following the name of the program (BatchInterface).
 For batch execution, the command is as follows:
-java -jar sifacoja-1.0.0-RELEASE.jar BatchInterface %1 %2
+java -jar sifacoja-1.0.1-RELEASE.jar BatchInterface %1 %2
 where the parameters are the respective file names.

@@ -88,7 +88,7 @@ public class MainWindow implements ActionListener {
 
 			StringBuffer sBuffer = new StringBuffer();
 			for(i=0;i<szArray.length;i++) {
-				if(szArray[i].equals(".")) {
+				if(szArray[i].equals("{|}")) {
 					i = szArray.length;
 				} else {
 					sBuffer.append(szArray[i] + "\n");
@@ -177,6 +177,7 @@ public class MainWindow implements ActionListener {
 		gbc_scrollPane.gridy = 3;
 		frmSimpleFileCompare.getContentPane().add(scrollPane, gbc_scrollPane);
 		scrollPane.setFont(font);
+		textArea.setFont(new Font("Monospaced", Font.PLAIN, 13));
 		scrollPane.setViewportView(textArea);
 		
 		GridBagConstraints gbc_btnNewButton_3 = new GridBagConstraints();

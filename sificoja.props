@@ -1,0 +1,4 @@
+# sificoja parameters
+sort=false
+readAheadNbr=1
+pctForMatch=50

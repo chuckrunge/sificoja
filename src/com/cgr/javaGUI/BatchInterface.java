@@ -1,10 +1,5 @@
 package com.cgr.javaGUI;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-
 public class BatchInterface {
 
 	public static void main(String[] args) {
@@ -17,26 +12,31 @@ public class BatchInterface {
 		}
 		try{
 		
-		File outFile = new File("./Output.txt");
-		BufferedWriter bWriter = new BufferedWriter(new FileWriter(outFile));
+		//File outFile = new File("./Output.txt");
+		//BufferedWriter bWriter = new BufferedWriter(new FileWriter(outFile));
 		int i = 0;
 		String[] szArray = new String[9999];
-		FileCompare fCompare = new FileCompare();
-		szArray = fCompare.Compare(args[1], args[2]);
+		//XFileCompare fCompare = new XFileCompare();
+		FileCompare mCompare = new FileCompare();
+		szArray = mCompare.Compare(args[1], args[2]);
 
 		StringBuffer sBuffer = new StringBuffer();
 		for(i=0;i<szArray.length;i++) {
-			if(szArray[i].equals(".")) {
+			
+			if(szArray[i] == "{|}") {
 				i = szArray.length;
 			} else {
 				sBuffer.append(szArray[i] + "\n");
-				bWriter.write(szArray[i] + "\n");			}
+				console(szArray[i]);
+				//bWriter.write(szArray[i] + "\n");			
+				}
 		}
 		//console(sBuffer.toString());
-		bWriter.close();
+		//bWriter.close();
 
-		} catch(IOException ioe) {
+		} catch(Exception ioe) {
 			console(ioe.getMessage());
+			ioe.printStackTrace();
 		}
 	}
 
