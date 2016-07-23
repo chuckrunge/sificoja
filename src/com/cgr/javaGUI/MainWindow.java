@@ -58,16 +58,16 @@ public class MainWindow implements ActionListener {
 	}
 	
 	public void actionPerformed (ActionEvent e) {
-
+		//System.out.println(e.getActionCommand());
 		if(e.getActionCommand()=="Close" ) {
 			frmSimpleFileCompare.dispose();
 			frmSimpleFileCompare.setVisible(false);
 		}
 
 		if(e.getActionCommand()=="File1" ) {
-			
 			FileWindow fWindow1 = new FileWindow();
 		    int status = fWindow1.fileWindow.showOpenDialog(null);
+
 		    if (status == JFileChooser.APPROVE_OPTION) {
 		      File selectedFile = fWindow1.fileWindow.getSelectedFile();
 		      textField.setText(selectedFile.getParent() + "\\" + selectedFile.getName());
@@ -80,6 +80,7 @@ public class MainWindow implements ActionListener {
 
 			FileWindow fWindow2 = new FileWindow();
 		    int status = fWindow2.fileWindow.showOpenDialog(null);
+
 		    if (status == JFileChooser.APPROVE_OPTION) {
 		      File selectedFile = fWindow2.fileWindow.getSelectedFile();
 		      textField_1.setText(selectedFile.getParent() + "\\" + selectedFile.getName());
@@ -93,7 +94,7 @@ public class MainWindow implements ActionListener {
 			int i = 0;
 			String[] szArray = new String[9999];
 			FileCompare fCompare = new FileCompare();
-
+			//		- option pctForMatch
 			Map<String,String> pMap = loadParameters(sdcj);
 			if(!common.isNullOrEmpty(pMap.get("sort"))) {
 				String doSort = pMap.get("sort");
@@ -102,6 +103,7 @@ public class MainWindow implements ActionListener {
 					console("sort=true");
 				} else {
 					console("sort=false");
+
 				}
 			};
 			if(!common.isNullOrEmpty(pMap.get("readAheadNbr"))) {
@@ -148,7 +150,7 @@ public class MainWindow implements ActionListener {
 	private void initialize() {
 		frmSimpleFileCompare = new JFrame();
 		frmSimpleFileCompare.setTitle("Simple File Compare for Java");
-		frmSimpleFileCompare.setBounds(100, 100, 485, 419);
+		frmSimpleFileCompare.setBounds(100, 100, 485, 345);
 		frmSimpleFileCompare.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[]{0, 0, 0, 0, 0, 0, 0};
@@ -247,8 +249,9 @@ public class MainWindow implements ActionListener {
     		console(e.getMessage() );
     		e.printStackTrace();
     	}
+    	//console(""+cache.countSelected()+" parameter row read");
 		
-		//load cache into hashmap
+		//load hashmap
 		Map<String,String> hmap = new HashMap<String,String>();
     	
 		boolean titlePrint = true;

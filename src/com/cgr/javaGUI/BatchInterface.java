@@ -12,18 +12,15 @@ public class BatchInterface {
 		}
 		try{
 		
-		//File outFile = new File("./Output.txt");
-		//BufferedWriter bWriter = new BufferedWriter(new FileWriter(outFile));
 		int i = 0;
 		String[] szArray = new String[9999];
-		//XFileCompare fCompare = new XFileCompare();
 		FileCompare mCompare = new FileCompare();
 		szArray = mCompare.Compare(args[1], args[2]);
 
 		StringBuffer sBuffer = new StringBuffer();
 		for(i=0;i<szArray.length;i++) {
 			
-			if(szArray[i] == "{|}") {
+			if(szArray[i] == null || szArray[i] == "{|}") {
 				i = szArray.length;
 			} else {
 				sBuffer.append(szArray[i] + "\n");
