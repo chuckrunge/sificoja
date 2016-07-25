@@ -127,7 +127,7 @@ public class MainWindow implements ActionListener {
 
 			StringBuffer sBuffer = new StringBuffer();
 			for(i=0;i<szArray.length;i++) {
-				if(szArray[i].equals("{|}")) {
+				if(szArray[i]==null || szArray[i].equals("{|}")) {
 					i = szArray.length;
 				} else {
 					sBuffer.append(szArray[i] + "\n");

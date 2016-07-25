@@ -2,7 +2,7 @@
 <RootElement>
 	<Row rowId="0">
 	<sort>false</sort>
-	<readAheadNbr>4</readAheadNbr>
-	<pctForMatch>33</pctForMatch>
+	<readAheadNbr>5</readAheadNbr>
+	<pctForMatch>99</pctForMatch>
 	</Row>
 </RootElement>

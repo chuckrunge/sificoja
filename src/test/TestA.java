@@ -35,6 +35,36 @@ public class TestA {
 		assertEquals("read file not equal", "Five Techniques", sz.substring(5, 20));
 		//fail("Not yet implemented");
 	}
+	@Test
+	public void test03() {
+		
+		try{
+			
+			int i = 0;
+			String[] szArray = new String[9999];
+			FileCompare mCompare = new FileCompare();
+			szArray = mCompare.Compare("C:\\commands\\file1.txt", "C:\\commands\\file2.txt");
+
+			StringBuffer sBuffer = new StringBuffer();
+			for(i=0;i<szArray.length;i++) {
+			
+			//if(szArray[i] == null || szArray[i] == "{|}") {
+			//	i = szArray.length;
+			//} else {
+				sBuffer.append(szArray[i] + "\n");
+				console( String.format("%4d %s", i, szArray[i]) );
+				//bWriter.write(szArray[i] + "\n");			
+			}
+		
+		//console(sBuffer.toString());
+		//bWriter.close();
+
+		} catch(Exception ioe) {
+			console(ioe.getMessage());
+			ioe.printStackTrace();
+		}
+
+	}
 public void console(String sz) {
 	System.out.println(sz);
 }

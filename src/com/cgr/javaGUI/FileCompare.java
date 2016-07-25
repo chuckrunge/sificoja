@@ -23,6 +23,8 @@ public class FileCompare {
 	public String[] file1Array = null;
 	public String[] file2Array = null;
 	public String[] returnArray = null;
+	public static String INSERT = "insert";
+	public static String DELETE = "delete";
 	Common common = new Common();
 	
 	public int getReadAheadNbr() {
@@ -59,7 +61,6 @@ public class FileCompare {
 		f2Ctr = scanForCount(fName2);
 	    if(f1Ctr>=f2Ctr) maxSize = f1Ctr+1;
 	    if(f2Ctr>=f1Ctr) maxSize = f2Ctr+1;
-	    //console("f1:"+f1Ctr+" f2:"+f2Ctr+" maxSize:"+maxSize);
 	    //loadParameters();
 		if(maxSize>0) {
 			console("using maxSize="+maxSize);
@@ -81,55 +82,50 @@ public class FileCompare {
 		StringBuffer  szLine2 = new StringBuffer();
 		boolean file1EOF  = false, file2EOF = false;
 		
-		String sz1 = readFile(bR1);
-		if(!common.isNullOrEmpty(sz1))
-			szLine1.append(sz1);
-		else szLine1.append(".");
+		szLine1.append(readFile(bR1));
 		if(szLine1.toString()=="null") file1EOF = true;
-		
-		String sz2 =  readFile(bR2);
-		if(!common.isNullOrEmpty(sz2))
-			szLine2.append(sz2);
-		else szLine2.append(".");
+		//console("#"+ctr1+" "+szLine1.toString());
+		szLine2.append(readFile(bR2));
 		if(szLine2.toString()=="null") file2EOF = true;
+		//console("#"+ctr2+" "+szLine2.toString());
 		
 		while(!file1EOF || !file2EOF) {
 
 			if(!file1EOF) {
-				if(common.isNullOrEmpty(szLine1.toString()))
-					file1Array[ctr1] = "."; //filler for empty  string
-				else
-					file1Array[ctr1] = szLine1.toString();
-				szLine1.delete(0, szLine1.length());
+//				if(common.isNullOrEmpty(szLine1.toString()))
+//					file1Array[ctr1] = "."; //filler for empty  string
+//				else
+				file1Array[ctr1] = szLine1.toString();
 				
+				szLine1.delete(0, szLine1.length());
 				szLine1.append(readFile(bR1));
 				//console("file1" + szLine1.toString());
 				if(szLine1.toString().equals("null")) {
 					file1EOF = true;
 					file1Array[ctr1+1] = "{|}";
-					}	
-				else ctr1++;
+				} else ctr1++;
 			}	
 			
 			if(!file2EOF) {
-				if(common.isNullOrEmpty(szLine2.toString()))
-					file2Array[ctr2] = "."; //filler for empty string
-				else	
-					file2Array[ctr2] = szLine2.toString(); 
+				//if(common.isNullOrEmpty(szLine2.toString()))
+				//	file2Array[ctr2] = "."; //filler for empty string
+				//else	
+				file2Array[ctr2] = szLine2.toString(); 
+				
 				szLine2.delete(0, szLine2.length());
 				szLine2.append(readFile(bR2));
 				//console("file2" + szLine2.toString());
 				if(szLine2.toString().equals("null")) { 
 					file2EOF = true;
 					file2Array[ctr2+1] = "{|}";
-				}	
-				else ctr2++;
+				} else ctr2++;
 			}	
 	
 		} //end while
 
 		fR1.close();
 		fR2.close();
+		console("loaded: " + ctr1 +" "+ ctr2);
 		
 	    if(maxSize>f1Ctr+1) {
 	    	int limit = (maxSize-f1Ctr)-1;
@@ -148,8 +144,8 @@ public class FileCompare {
 	    	}
 	    }
 		
-		//displayArray(file1Array,(maxSize));
-		//displayArray(file2Array,(maxSize));
+		//displayArray("file array #1: ",file1Array,(maxSize));
+		//displayArray("file array #2: ",file2Array,(maxSize));
 
 	    if(sort) {
 			console("sorting...");
@@ -159,34 +155,48 @@ public class FileCompare {
 		    list = Arrays.asList(file2Array); 
 			Collections.sort(list,String.CASE_INSENSITIVE_ORDER);
 		}
-		
+	    
+		int idx = 0;
+	    for(String sz1: file1Array) {
+	    	if(".".equals(sz1)) {
+	    		file1Array[idx] = "";
+	    	}
+	    	idx++;	//console("file1 needed "+n);
+	    }
+		idx = 0;
+	    for(String sz2: file2Array) {
+	    	if(".".equals(sz2)) {
+	    		file2Array[idx] = "";
+	    	}
+	    	idx++;	//console("file1 needed "+n);
+	    }
+
 		String sz = "";
 		
 		//arrays are loaded 
 		int i = 0,j = 0; 
 
 		while( i < maxSize && j < maxSize && ( !"{|}".equals(file1Array[i]) || !"{|}".equals(file2Array[j]))) {
+			
 			szLine1.delete(0, szLine1.length());
-			szLine2.delete(0, szLine2.length());
 			szLine1.append(file1Array[i]);
+			szLine2.delete(0, szLine2.length());
+			szLine2.append(file2Array[j]);
+			
 			if("{|}".equals(file1Array[i]) ) { //EOF file1
 				console("file1 at eof");
-				console("i: " + i + " j:" +j+ " r:" +r);
+				//console("i: " + i + " j:" +j+ " r:" +r);
 				if(j < (maxSize - 1)) {
-					returnArray[r++] = String.format("insert %4d %s", (j+1),file2Array[j]);
-					console("insert "+(j+1) + " " + file2Array[j]);
-					bW.write("insert "+(j+1) + " " + file2Array[j]+"\n");					
+					returnArray[r++] = writeToAll(INSERT, bW, j, file2Array[j]);
 				}
 				j++;
 				continue;
 			}
 			if("{|}".equals(file2Array[j]) ) {  //EOF file2
 				console("file2 at eof");
-				console("i: " + i + " j:" +j);
+				//console("i: " + i + " j:" +j);
 				if(i < (maxSize - 1)) {
-					returnArray[r++] = String.format("delete %4d %s", (i+1),file1Array[i]);
-					console("delete "+(i+1) + " " + file1Array[i]);
-					bW.write("delete "+(i+1) + " " + file1Array[i]+"\n");					
+					returnArray[r++] = writeToAll(DELETE, bW, i, file1Array[i]);
 				}
 				i++;
 				continue;
@@ -194,6 +204,8 @@ public class FileCompare {
 
 			if(szLine1.toString().compareTo(szLine2.toString()) != 0) {
 				// did file2 delete or insert a line?  which line number?
+				console("eval#1:"+szLine1.toString());
+				console("eval#2:"+szLine2.toString());
 				if(readAheadNbr>0) {
 					boolean readAheadDone = false;
 					int k=0;
@@ -207,10 +219,8 @@ public class FileCompare {
 					if(k!=0 && (k-i)<=readAheadNbr && !readAheadDone) {
 						console("reading ahead for delete...");
 						for(int m=i;m<k;m++) {
-							console(String.format("delete %4d %s", (i+1), file1Array[i]));
-							returnArray[r] = String.format("delete %4d %s", (i+1), file1Array[i]);
+							returnArray[r] = writeToAll(DELETE,bW, i, file1Array[i]);
 							r++;
-							bW.write(String.format("delete %4d %s\n", (i+1), file1Array[i]));
 							if("{|}".equals(file1Array[(i+1)])) {
 								m = k;
 							} else i++; //printed above, moving on 
@@ -233,9 +243,7 @@ public class FileCompare {
 					if(k!=0 && (k-i)<=readAheadNbr && !readAheadDone) {
 						console("reading ahead for match...");
 						for(int m=j;m<k;m++) {
-							console(String.format("insert %4d %s", (j+1), file2Array[j]));
-							bW.write(String.format("insert %4d %s\n", (j+1), file2Array[j]));
-							returnArray[r] = String.format("insert %4d %s", (j+1), file2Array[j]);
+							returnArray[r] = writeToAll(INSERT, bW, j, file2Array[j]);
 							r++;
 							j++; //printed above, moving on
 							if("{|}".equals(file2Array[j])) m = k;
@@ -312,7 +320,11 @@ public class FileCompare {
 		catch(IOException e){
 			System.out.println(e.getMessage());
 		}
-		return sz;
+		if(sz.isEmpty()) {
+			return ".";
+		} else {
+			return sz;
+		}
 	}
 	
 	String showBytes(BufferedWriter bW, String szLine1, String szLine2) {
@@ -363,8 +375,8 @@ public class FileCompare {
 		return 0;
 	}
 
-	public void displayArray(String[] fileArray, int ctr) {
-		console("displayArray");
+	public void displayArray(String sz, String[] fileArray, int ctr) {
+		console(sz);
 		for(int i=0;i<ctr;i++) {
 			console(i+fileArray[i]);
 		}
@@ -433,4 +445,14 @@ public class FileCompare {
 		int x = (100 - (zCtr * 100) / szArray.length());
 		return x;
 	}
+	public String writeToAll(String msg, BufferedWriter bw, int i, String lineIn) {
+		try {
+			console(msg+" "+ (i+1) + " " + lineIn);
+			bw.write(msg+" "+ (i+1) + " " + lineIn+"\n");
+		} catch (Exception e) {
+			console("write failed:"+e.getMessage());
+		}
+		return String.format(msg + " %4d %s", (i+1), lineIn);
+	}
+
 }
