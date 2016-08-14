@@ -100,9 +100,9 @@ public class MainWindow implements ActionListener {
 				String doSort = pMap.get("sort");
 				if("true".equals(doSort)) {
 					fCompare.setSort(true);
-					console("sort=true");
+					console("sort="+fCompare.sort);
 				} else {
-					console("sort=false");
+					console("sort="+fCompare.sort);
 
 				}
 			};
@@ -111,17 +111,19 @@ public class MainWindow implements ActionListener {
 				if(isInteger(readAheadNbr)) {
 					int iNbr = Integer.parseInt(readAheadNbr);
 					fCompare.setReadAheadNbr(iNbr);
-					console("readAheadNbr="+readAheadNbr);
+					console("readAheadNbr="+fCompare.readAheadNbr);
 				}
 			};
 			if(!common.isNullOrEmpty(pMap.get("pctForMatch"))) {
 				String pctForMatch = pMap.get("pctForMatch");
 				if(isInteger(pctForMatch)) {
 					int iNbr = Integer.parseInt(pctForMatch);
-					fCompare.setReadAheadNbr(iNbr);
-					console("pctForMatch="+pctForMatch);
+					fCompare.setPctForMatch(iNbr);
+					console("pctForMatch="+fCompare.pctForMatch);
 				}
 			};
+			
+			//console("sort: "+fCompare.sort+" readAheadNbr: "+fCompare.getReadAheadNbr()+" pctForMatch: "+fCompare.getPctForMatch());
 
 			szArray = fCompare.Compare(textField.getText(), textField_1.getText());
 
@@ -133,7 +135,7 @@ public class MainWindow implements ActionListener {
 					sBuffer.append(szArray[i] + "\n");
 				}
 			}
-			textArea.setText(textArea.getText() + sBuffer);
+			textArea.setText(sBuffer.toString());
 		}
 	}
 
@@ -233,7 +235,9 @@ public class MainWindow implements ActionListener {
 		btnNewButton_2.addActionListener(this);
 	
 	}
-
+/*
+ * load start-up parameters from xml file
+ */
 	public static Map<String, String> loadParameters(Sidacoja sdcj) {
 		
     	sdcj.input("./resources/properties.xml");

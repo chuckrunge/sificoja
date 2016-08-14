@@ -25,6 +25,7 @@ public class FileCompare {
 	public String[] returnArray = null;
 	public static String INSERT = "insert";
 	public static String DELETE = "delete";
+	public static String CHANGE = "change";
 	Common common = new Common();
 	
 	public int getReadAheadNbr() {
@@ -204,8 +205,8 @@ public class FileCompare {
 
 			if(szLine1.toString().compareTo(szLine2.toString()) != 0) {
 				// did file2 delete or insert a line?  which line number?
-				console("eval#1:"+szLine1.toString());
-				console("eval#2:"+szLine2.toString());
+				//console("eval#1: "+szLine1.toString() +
+				//	" eval#2: "+szLine2.toString() );
 				if(readAheadNbr>0) {
 					boolean readAheadDone = false;
 					int k=0;
@@ -233,28 +234,58 @@ public class FileCompare {
 							i++; //it matches now
 						j++;
 						readAheadDone = true;
+						continue;
 					}
 
 					//if delete read ahead was skipped, resume processing
 					if(nextLine == null) readAheadDone = true;
 
 					//not a delete - now check for inserts
-					k = determineIfSync(file2Array, szLine1.toString(), i);
-					if(k!=0 && (k-i)<=readAheadNbr && !readAheadDone) {
-						console("reading ahead for match...");
-						for(int m=j;m<k;m++) {
-							returnArray[r] = writeToAll(INSERT, bW, j, file2Array[j]);
-							r++;
-							j++; //printed above, moving on
-							if("{|}".equals(file2Array[j])) m = k;
+					//1) szLine1 has changed 2) insert would be file2 only
+					k = determineIfSync(file1Array, szLine2.toString(), i);
+					if(k==0 && (k-i)<=readAheadNbr && !readAheadDone) {
+						boolean match = false;
+						if(pctForMatch>0) {
+							match = true;
+							sz = showBytes(bW, szLine1.toString(), szLine2.toString());
+							int pctMatch = countCaps(sz);
+							console("ck: "+ pctMatch +  " " + pctForMatch);
+							if(pctMatch == 100 || pctMatch < pctForMatch) {
+								console(pctMatch+" < "+pctForMatch);
+								match = false;
+							}
 						}
+						if(match) {
+							returnArray[r] = writeToAll(CHANGE, bW, i, file1Array[i]);
+							r++;
+							returnArray[r] = writeToAll(CHANGE, bW, j, file2Array[j]);
+							r++;
+							returnArray[r] = writeToAll(CHANGE,  bW, i, showBytes(bW, szLine1.toString(), szLine2.toString()));
+							r++;
+
+							i++;
+							j++;
+							continue;
+						}
+						console("!!! reading ahead for insert...");
+						returnArray[r] = writeToAll(INSERT, bW, j, file2Array[j]);
+						r++;
+						j++; //printed above, moving on
+						//???if("{|}".equals(file2Array[j])) m = k;
+						//}//for(int m=j;m<k;m++) {
+						//	returnArray[r] = writeToAll(INSERT, bW, j, file2Array[j]);
+						//	r++;
+						//	j++; //printed above, moving on
+						//	if("{|}".equals(file2Array[j])) m = k;
+						//}
 						szLine2.delete(0, szLine2.length());
 						szLine2.append(file2Array[j]);
-						console("ended reading ahead at match: "+i+" "+(j+1));
+						console("ended reading ahead for insert: "+i+" "+(j+1));
 						i++; //it matches now
 						if(!"{|}".equals(file2Array[j]))
 							j++;
 						readAheadDone = true;
+						continue;
 					}
 				}	
 
@@ -263,7 +294,7 @@ public class FileCompare {
 					if(pctForMatch>0) {
 						match = true;
 						sz = showBytes(bW, szLine1.toString(), szLine2.toString());
-						int pctMatch = countCaps(sz);
+						int pctMatch = countCaps(sz); //pc difference
 						if(pctMatch < pctForMatch) {
 							console(pctMatch+" < "+pctForMatch);
 							match = false;
@@ -286,7 +317,7 @@ public class FileCompare {
 					i++;
 					j++;
 				}
-			} else {
+			} else { //match!
 				i++;j++;
 			} //end else	
 		} //end while
@@ -353,18 +384,11 @@ public class FileCompare {
 			}	
 		}
 
-		try {
-			bW.write("\r\n");
-			bW.write(szLine1 + "\r\n");
-			bW.write(szLine2 + "\r\n");
-			bW.write(szArray3 + "\r\n");
-			bW.write("\r\n");
-			
-		} catch(IOException e) {
-			System.out.println(e.getMessage());
-		}
 		return szArray3;
 	}
+	/*
+	 * check if line is included farther down
+	 */
 	public int determineIfSync(String[] szArray, String szLine, int i) {
 	
 		for(int x=i;x<szArray.length;x++) {
@@ -374,7 +398,9 @@ public class FileCompare {
 		}
 		return 0;
 	}
-
+/*
+ * utility method to verify array
+ */
 	public void displayArray(String sz, String[] fileArray, int ctr) {
 		console(sz);
 		for(int i=0;i<ctr;i++) {
@@ -386,7 +412,9 @@ public class FileCompare {
 	public void console(String sz) {
 		System.out.println(sz);
 	}
-	
+	/*
+	 *  parm file has been replaced with xml
+	 */
 	public void loadParameters() {
 		String name = "";
 		try {
@@ -435,6 +463,9 @@ public class FileCompare {
 		}
 		return ctr;
 	}
+	/*
+	 * determine percent match by counting carots
+	 */
 	public int countCaps(String szArray) {
 		int zCtr=0;
 		for(int z=0;z<szArray.length();z++) {
@@ -442,9 +473,12 @@ public class FileCompare {
 				zCtr++;
 		}
 		console(zCtr+" caps found in "+szArray.length()+" chars");
-		int x = (100 - (zCtr * 100) / szArray.length());
+		int x = 100 - ( 100 * zCtr / szArray.length() );
 		return x;
 	}
+	/*
+	 * utility method for writing to outputs in sync
+	 */
 	public String writeToAll(String msg, BufferedWriter bw, int i, String lineIn) {
 		try {
 			console(msg+" "+ (i+1) + " " + lineIn);
